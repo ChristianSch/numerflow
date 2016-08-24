@@ -8,3 +8,5 @@ any feedback, so just open up an issue (if there isn't already one).
 ## Tasks
 Currently implemented:
 * fetch and extract the datasets
+* split and prepare training/prediction data
+* train and predict (WIP/not upstream yet)
