@@ -10,12 +10,18 @@ twitter or slack (@rogue).
 ## Tasks
 Currently implemented:
 * fetch and extract the datasets
+* train and predict
 
 ### Planned
 * automated dataviz and analysis (seaborn, nbconvert executed) in a jupyter
 notebook
-* train and predict (WIP/not upstream yet)
-* split and prepare training/prediction data
+* automatic upload
+
+## Documentation
+### `FetchAndExtractData`
+#### Parameters
+* `dataset-path`: where the datasets should be saved eventually (defaults to
+    `./data/`)
 
 ## Usage
 Prepare the project:
@@ -25,5 +31,5 @@ pip install -r requirements.txt
 
 To fetch the training data run
 ```
-env PYTHONPATH='' luigi --local-scheduler --module tasks.numerai_fetch_training_data FetchTrainingData
+env PYTHONPATH='' luigi --local-scheduler --module tasks.numerai_fetch_training_data FetchAndExtractData
 ```
