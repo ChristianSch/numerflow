@@ -8,12 +8,12 @@ any feedback, so just open up an issue (if there isn't already one).
 ## Tasks
 Currently implemented:
 * fetch and extract the datasets
-* split and prepare training/prediction data
 
 ### Planned
 * automated dataviz and analysis (seaborn, nbconvert executed) in a jupyter
 notebook
 * train and predict (WIP/not upstream yet)
+* split and prepare training/prediction data
 
 ## Usage
 Prepare the project:
