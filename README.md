@@ -19,9 +19,34 @@ notebook
 
 ## Documentation
 ### `FetchAndExtractData`
+Fetches the dataset zipfile and extracts the contents to `output-path`.
+
 #### Parameters
-* `dataset-path`: where the datasets should be saved eventually (defaults to
+* `output-path`: where the datasets should be saved eventually (defaults to
     `./data/`)
+* `dataset-path`: URI of the remote dataset (defaults to `https://datasets.numer.ai/57b4899/numerai_datasets.zip`)
+
+### `TrainAndPredict`
+Trains a Bernoulli Naïve Bayes classifier and predicts the targets. Output file
+is saved at `output-path` with a custom, timestamped file name.
+
+#### Parameters
+* `output-path`: where the datasets should be saved eventually (defaults to
+    `./data/`)
+* `dataset-path`: URI of the remote dataset (defaults to `https://datasets.numer.ai/57b4899/numerai_datasets.zip`)
+
+### `UploadPredictions`
+Uploads the predictions of not already uploaded.
+
+**Note: the actual file upload does not work yet**
+
+#### Parameters
+* `output-path`: where the datasets should be saved eventually (defaults to
+    `./data/`)
+* `dataset-path`: URI of the remote dataset (defaults to `https://datasets.numer.ai/57b4899/numerai_datasets.zip`)
+* `usermail`: user email
+* `userpass`: user password
+* `filepath`: path to the file ought to be uploaded
 
 ## Usage
 Prepare the project:
@@ -29,7 +54,7 @@ Prepare the project:
 pip install -r requirements.txt
 ```
 
-To fetch the training data run
+To run the complete pipeline:
 ```
-env PYTHONPATH='' luigi --local-scheduler --module tasks.numerai_fetch_training_data FetchAndExtractData
+env PYTHONPATH='' luigi --local-scheduler --module workflow Workflow --usermail="YOUR_MAIL" --userpass="YOUR_PASS"
 ```
