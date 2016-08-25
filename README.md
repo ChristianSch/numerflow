@@ -11,11 +11,11 @@ twitter or slack (@rogue).
 Currently implemented:
 * fetch and extract the datasets
 * train and predict
+* automatic upload (WIP)
 
 ### Planned
 * automated dataviz and analysis (seaborn, nbconvert executed) in a jupyter
 notebook
-* automatic upload
 
 ## Documentation
 ### `FetchAndExtractData`
