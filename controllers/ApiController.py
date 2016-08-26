@@ -43,3 +43,13 @@ class ApiController(object):
         req1 = requests.post('https://api.numer.ai/upload/auth')
         r = requests.post('https://api.numer.ai/submissions',
                           data={}, headers=headers)
+
+    def get_no_predictions(self):
+        """
+        Returns the count of all predictions made.
+
+        @returns number of predictions as int
+        """
+        r = requests.get('https://api.numer.ai/stats').json()
+        r.raise_for_status
+        return r.json()['predictions']
