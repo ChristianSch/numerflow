@@ -25,7 +25,7 @@ class TrainAndPredict(luigi.Task):
                                    dataset_path=self.dataset_path)
 
     def output(self):
-        req = urllib2.Request(self.dataset_path, headers={'User-Agent': "Foo"})
+        req = urllib2.Request(self.dataset_path, headers={'User-Agent': 'Foo'})
         res = urllib2.urlopen(req)
 
         # TODO: not really failure tolerant with the formatting. is it some
