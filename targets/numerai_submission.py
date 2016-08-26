@@ -25,4 +25,4 @@ class SubmissionTarget(luigi.target.Target):
         return False
 
     def submit(self):
-        raise NotImplementedError
+        self.apic.upload_submission(self.path)
