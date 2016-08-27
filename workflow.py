@@ -11,19 +11,21 @@ class Workflow(luigi.Task):
     usermail = luigi.Parameter()
     userpass = luigi.Parameter()
 
+    def requires(self):
+        self.apc = ApiController()
+        self.dataset_path = self.apc.fetch_current_dataset_uri()
+
+        return [
+                TrainAndPredict(dataset_path=self.dataset_path,
+                                output_path=self.output_path)
+                ]
+
     def run(self):
-        apc = ApiController()
-        dataset_path = apc.fetch_current_dataset_uri()
-        data = [
-            TrainAndPredict(dataset_path=dataset_path,
-                            output_path=self.output_path)
-        ]
+        task_deps = self.input()
 
-        for d in data:
-            target = d.output()
-
-            yield UploadPredictions(filepath=target.path,
+        for task in task_deps:
+            yield UploadPredictions(filepath=task.path,
                                     usermail=self.usermail,
                                     userpass=self.userpass,
-                                    dataset_path=dataset_path,
+                                    dataset_path=self.dataset_path,
                                     output_path=self.output_path)
