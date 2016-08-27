@@ -26,15 +26,30 @@ class ApiController(object):
         return r_json
 
     def fetch_submissions(self, usern=None):
-        if usern:
-            requests.get('https://api.numer.ai/user/' % (usern)).json()
+        """
+        Fetches the submissions for either usern (unauthorized, read,
+        without filenames) or the authorized user.
 
-        if self.auth_token:
+        @param usern Username for the unauthorized submission fetching request.
+                     Note: if set, this is prioritized over the authorized
+                     user.
+
+        @returns Either the submissions or `None`.
+        """
+        if usern:
+            r = requests.get('https://api.numer.ai/user/' % (usern))
+            r.raise_for_status
+            return r.json()
+
+        elif self.auth_token:
             r = requests.get('https://api.numer.ai/user/%s' % (self.user_name),
                              headers={'Authorization': 'Bearer %s'
                                       % (self.auth_token)})
             r.raise_for_status
             return r.json()
+
+        else:
+            return None
 
     def fetch_competitions(self):
         """
