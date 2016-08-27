@@ -1,17 +1,30 @@
 # numerflow
 Data workflows for the numer.ai machine learning competition
 
+## Important Note
+Please respect that the API of numer.ai is not officially publicized, thus
+please restrain from putting too much pressure on the API and their S3 buckets.
+
+This also means that the API can change without notice, and that this project
+might fail without a warning.
+
 ## Status
-I just started to work on this, and a lot is not optimal. I'm glad if you have
-any feedback, so just open up an issue (if there isn't already one). If you
-have specific tasks that you want to see implemented, hit me up via the issues,
-twitter or slack (@rogue).
+I'm glad if you have any feedback, so just open up an issue (if there isn't
+already one). If you have specific tasks that you want to see implemented, hit
+me up via the issues, twitter or slack (@rogue).
+
+**Update:**
+(2016-08-27) I completed a fully functional (though exemplary) pipeline, which
+fetches the datasets, trains a simple Naïve Bayes on the data, and submits
+the predictions automatically.
+Note that if the predictions for the classifier already have been uploaded,
+nothing is being done.
 
 ## Tasks
 Currently implemented:
 * fetch and extract the datasets
 * train and predict
-* automatic upload (WIP)
+* automatic upload
 
 ### Planned
 * automated dataviz and analysis (seaborn, nbconvert executed) in a jupyter
