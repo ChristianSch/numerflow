@@ -1,3 +1,6 @@
+from datetime import datetime
+from datetime import timedelta
+
 import requests
 
 
@@ -31,6 +34,50 @@ class ApiController(object):
                                       % (self.auth_token)})
             r.raise_for_status
             return r.json()
+
+    def fetch_competitions(self):
+        """
+        Fetches current and if provided, the upcoming competition.
+        """
+        now = datetime.now()
+        d = timedelta(microseconds=55296e5)
+        dt = now - d
+        dt_str = dt.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+        url = 'https://api.numer.ai/competitions?{ leaderboard :'
+        url += ' current , end_date :{ $gt : %s }}'
+        r = requests.get((url % (dt_str)).replace(' ', '%22'))
+        r.raise_for_status
+
+        return r.json()
+
+    def fetch_dataset_id(self):
+        """
+        Returns current dataset id or `None`.
+        """
+        out = self.fetch_competitions()
+
+        now = datetime.now()
+
+        for comp in out:
+            start_date = datetime.strptime(comp['start_date'],
+                                           '%Y-%m-%dT%H:%M:%S.%fZ')
+            end_date = datetime.strptime(comp['end_date'],
+                                         '%Y-%m-%dT%H:%M:%S.%fZ')
+
+            if start_date < now < end_date:
+                return comp.get('dataset_id')
+
+        return None
+
+    def fetch_current_dataset_uri(self):
+        BASE_URL = 'https://datasets.numer.ai/{0}/numerai_datasets.zip'
+        did = self.fetch_dataset_id()[0:7]
+
+        if did:
+            return BASE_URL.format(did)
+
+        return None
 
     def upload_submission(self, file_path):
         headers = {}
