@@ -1,5 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
+import os
 
 import requests
 
@@ -51,28 +52,33 @@ class ApiController(object):
 
         return r.json()
 
-    def fetch_dataset_id(self):
+    def fetch_current_competition(self):
         """
-        Returns current dataset id or `None`.
+        Fetches the current competition.
         """
-        out = self.fetch_competitions()
-
         now = datetime.now()
+        comps = self.fetch_competitions()
 
-        for comp in out:
+        for comp in comps:
             start_date = datetime.strptime(comp['start_date'],
                                            '%Y-%m-%dT%H:%M:%S.%fZ')
             end_date = datetime.strptime(comp['end_date'],
                                          '%Y-%m-%dT%H:%M:%S.%fZ')
 
             if start_date < now < end_date:
-                return comp.get('dataset_id')
-
-        return None
+                return comp
 
     def fetch_current_dataset_uri(self):
+        """
+        Fetches the URI of the dataset for the running round.
+        """
         BASE_URL = 'https://datasets.numer.ai/{0}/numerai_datasets.zip'
-        did = self.fetch_dataset_id()[0:7]
+
+        try:
+            did = self.fetch_current_competition()['dataset_id'][0:7]
+        except KeyError, e:
+            print 'Competition data might have changed. Received no dataset id'
+            raise e
 
         if did:
             return BASE_URL.format(did)
