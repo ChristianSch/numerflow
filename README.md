@@ -30,14 +30,14 @@ Currently implemented:
 * automated dataviz and analysis (seaborn, nbconvert executed) in a jupyter
 notebook
 
-## Documentation
+## Task Documentation
 ### `FetchAndExtractData`
 Fetches the dataset zipfile and extracts the contents to `output-path`.
 
 #### Parameters
 * `output-path`: where the datasets should be saved eventually (defaults to
     `./data/`)
-* `dataset-path`: URI of the remote dataset (defaults to `https://datasets.numer.ai/57b4899/numerai_datasets.zip`)
+* `dataset-path`: URI of the remote dataset
 
 ### `TrainAndPredict`
 Trains a Bernoulli Naïve Bayes classifier and predicts the targets. Output file
@@ -46,7 +46,7 @@ is saved at `output-path` with a custom, timestamped file name.
 #### Parameters
 * `output-path`: where the datasets should be saved eventually (defaults to
     `./data/`)
-* `dataset-path`: URI of the remote dataset (defaults to `https://datasets.numer.ai/57b4899/numerai_datasets.zip`)
+* `dataset-path`: URI of the remote dataset
 
 ### `UploadPredictions`
 Uploads the predictions of not already uploaded.
@@ -56,10 +56,50 @@ Uploads the predictions of not already uploaded.
 #### Parameters
 * `output-path`: where the datasets should be saved eventually (defaults to
     `./data/`)
-* `dataset-path`: URI of the remote dataset (defaults to `https://datasets.numer.ai/57b4899/numerai_datasets.zip`)
+* `dataset-path`: URI of the remote dataset
 * `usermail`: user email
 * `userpass`: user password
 * `filepath`: path to the file ought to be uploaded
+
+## API Controller Documentation
+### `login`
+* `user_mail`: Mail address of the user
+* `user_password`: User password
+
+If successful, the `auth_token` and `user_name` attribute of the controller
+instance are filled according to the server response.
+
+### `fetch_submissions`
+* `usern`: (optional) username
+
+If `usern` is provided, the unauthorized version of the user's submissions
+are fetched. (Overwrites even authorized api controller instances.)
+
+Otherwise, and if authorized (`auth_token` is set), the complete submissions
+(includes filenames, as opposed to the unauthorized request, which does not
+include filenames) for the authorized user is fetched.
+
+If neither, `None` is returned.
+
+### `fetch_competitions`
+Fetches the data (including leaderboard) for the current and maybe upcoming
+round.
+
+### `fetch_current_competition`
+Fetches the current competition data.
+
+### `fetch_current_dataset_uri`
+Fetches the URI of the dataset for the running round.
+
+### `upload_submission`
+* `file_path`: Path to the file
+
+Authorizes the upload, uploads the file to Amazon S3 and submits the
+predictions to numer.ai. Returns the updated leaderboard.
+
+
+### `fetch_prediction_count`
+Fetches the number of all submissions of all participants.
 
 ## Usage
 Prepare the project:
