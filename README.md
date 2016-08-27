@@ -8,6 +8,10 @@ please restrain from putting too much pressure on the API and their S3 buckets.
 This also means that the API can change without notice, and that this project
 might fail without a warning.
 
+The [wiki](
+https://github.com/ChristianSch/numerflow/wiki/API-Reverse-Engineering) has a
+rough sketch of the reverse engineering process for the relevant API calls.
+
 ## Status
 I'm glad if you have any feedback, so just open up an issue (if there isn't
 already one). If you have specific tasks that you want to see implemented, hit
