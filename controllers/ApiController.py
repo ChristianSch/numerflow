@@ -12,9 +12,9 @@ class ApiController(object):
     def __init__(self):
         pass
 
-    def login(self, user_name, user_password):
+    def login(self, user_mail, user_password):
         r = requests.post('https://api.numer.ai/login',
-                          data={'email': user_name,
+                          data={'email': user_mail,
                                 'password': user_password})
 
         r.raise_for_status()
