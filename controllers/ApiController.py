@@ -142,6 +142,8 @@ class ApiController(object):
 
         r.raise_for_status
 
+        return r.json()
+
     def fetch_prediction_count(self):
         """
         Returns the count of all predictions made.
