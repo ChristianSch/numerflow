@@ -101,16 +101,46 @@ class ApiController(object):
         return None
 
     def upload_submission(self, file_path):
-        headers = {}
+        """
+        Uploads a submission to S3 and submits it to numer.ai
 
-        if self.auth_token:
-            headers = {
-                'Authorization': 'Bearer %s' % (self.auth_token)
-            }
+        @param file_path Path to file for upload. Ought to be a csv.
+        """
+        file_name = os.path.split(file_path)[1]
 
-        req1 = requests.post('https://api.numer.ai/upload/auth')
+        headers = {
+            'Authorization': 'Bearer %s' % (self.auth_token)
+        }
+
+        # authorize upload
+        req1 = requests.post('https://api.numer.ai/upload/auth',
+                             data={'filename': file_name,
+                                   'mimetype': 'text/csv'},
+                             headers=headers)
+        req1.raise_for_status
+        req1_data = req1.json()
+
+        with open(file_path, 'rb') as fp:
+            req = requests.Request('PUT', req1_data['signedRequest'],
+                                   data=fp.read())
+
+            r = req.prepare()
+
+            s = requests.Session()
+            res = s.send(r)
+            res.raise_for_status
+
+            fp.close()
+
+        comp = self.fetch_current_competition()
+
         r = requests.post('https://api.numer.ai/submissions',
-                          data={}, headers=headers)
+                          data={'competition_id': comp['_id'],
+                                'dataset_id': comp['dataset_id'],
+                                'filename': req1_data['filename']},
+                          headers=headers)
+
+        r.raise_for_status
 
     def get_no_predictions(self):
         """
