@@ -1,9 +1,15 @@
 import os
+import sys
 import urllib2
 from datetime import datetime
 import zipfile
-
 import luigi
+
+sys.path.append(os.path.abspath(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+))
+
+from controllers.ApiController import ApiController
 
 
 class FetchAndExtractData(luigi.Task):
@@ -12,11 +18,16 @@ class FetchAndExtractData(luigi.Task):
     contained in the zipfile are moved to `output_path` and the files are
     prepended by a timestamp to reflect the date of the last modified header.
     """
-    dataset_path = luigi.Parameter(
-        default='https://datasets.numer.ai/57b4899/numerai_datasets.zip')
+    dataset_path = luigi.Parameter(default=None)
     output_path = luigi.Parameter(default='./data/')
 
     def output(self):
+        # fetch most current dataset if no specific URI for the dataset is
+        # given.
+        if not self.dataset_path:
+            apc = ApiController()
+            self.dataset_path = apc.fetch_current_dataset_uri()
+
         # custom headers are needed, otherwise access is going to be forbidden
         # by cloudflare.
         req = urllib2.Request(self.dataset_path, headers={'User-Agent': "Foo"})
