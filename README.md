@@ -22,7 +22,7 @@ me up via the issues, twitter or slack (@rogue).
 fetches the datasets, trains a simple Naïve Bayes on the data, and submits
 the predictions automatically.
 Note that if the predictions for the classifier already have been uploaded,
-nothing is being done.
+nothing is to be done.
 
 ## Tasks
 Currently implemented:
