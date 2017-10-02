@@ -18,6 +18,11 @@ already one). If you have specific tasks that you want to see implemented, hit
 me up via the issues, twitter or slack (@rogue).
 
 **Update:**
+(2017-10-02) For some time now there is a somewhat official python api available
+based on my stuff [here](https://github.com/atreichel/NumerAPI). Consider using
+this together with this. I don't compete anymore, so I'm not interested in
+maintaining this. **Pull Requests Are Welcome!**
+
 (2016-08-27) I completed a fully functional (though exemplary) pipeline, which
 fetches the datasets, trains a simple Naïve Bayes on the data, and submits
 the predictions automatically.
