@@ -1,43 +1,11 @@
 # numerflow
 Data workflows for the numer.ai machine learning competition
 
-## Important Note
-Please respect that the API of numer.ai is not officially publicized, thus
-please restrain from putting too much pressure on the API and their S3 buckets.
-
-This also means that the API can change without notice, and that this project
-might fail without a warning.
-
-The [wiki](
-https://github.com/ChristianSch/numerflow/wiki/API-Reverse-Engineering) has a
-rough sketch of the reverse engineering process for the relevant API calls.
-
-## Status
-I'm glad if you have any feedback, so just open up an issue (if there isn't
-already one). If you have specific tasks that you want to see implemented, hit
-me up via the issues, twitter or slack (@rogue).
-
-**Update:**
-(2017-10-02) For some time now there is a somewhat official python api available
-based on my stuff [here](https://github.com/atreichel/NumerAPI). Consider using
-this together with this. I don't compete anymore, so I'm not interested in
-maintaining this. **Pull Requests Are Welcome!**
-
-(2016-08-27) I completed a fully functional (though exemplary) pipeline, which
-fetches the datasets, trains a simple Naïve Bayes on the data, and submits
-the predictions automatically.
-Note that if the predictions for the classifier already have been uploaded,
-nothing is to be done.
-
 ## Tasks
 Currently implemented:
 * fetch and extract the datasets
 * train and predict
 * automatic upload
-
-### Planned
-* automated dataviz and analysis (seaborn, nbconvert executed) in a jupyter
-notebook
 
 ## Task Documentation
 ### `FetchAndExtractData`
@@ -60,8 +28,6 @@ is saved at `output-path` with a custom, timestamped file name.
 ### `UploadPredictions`
 Uploads the predictions of not already uploaded.
 
-**Note: the actual file upload does not work yet**
-
 #### Parameters
 * `output-path`: where the datasets should be saved eventually (defaults to
     `./data/`)
@@ -70,53 +36,19 @@ Uploads the predictions of not already uploaded.
 * `userpass`: user password
 * `filepath`: path to the file ought to be uploaded
 
-## API Controller Documentation
-### `login`
-* `user_mail`: Mail address of the user
-* `user_password`: User password
-
-If successful, the `auth_token` and `user_name` attribute of the controller
-instance are filled according to the server response.
-
-### `fetch_submissions`
-* `usern`: (optional) username
-
-If `usern` is provided, the unauthorized version of the user's submissions
-are fetched. (Overwrites even authorized api controller instances.)
-
-Otherwise, and if authorized (`auth_token` is set), the complete submissions
-(includes filenames, as opposed to the unauthorized request, which does not
-include filenames) for the authorized user is fetched.
-
-If neither, `None` is returned.
-
-### `fetch_competitions`
-Fetches the data (including leaderboard) for the current and maybe upcoming
-round.
-
-### `fetch_current_competition`
-Fetches the current competition data.
-
-### `fetch_current_dataset_uri`
-Fetches the URI of the dataset for the running round.
-
-### `upload_submission`
-* `file_path`: Path to the file
-
-Authorizes the upload, uploads the file to Amazon S3 and submits the
-predictions to numer.ai. Returns the updated leaderboard.
-
-
-### `fetch_prediction_count`
-Fetches the number of all submissions of all participants.
-
 ## Usage
 Prepare the project:
 ```
-pip install -r requirements.txt
+pip install -r requirements.txt --ignore-installed
 ```
+
+If not alread done create an API key [here](https://numer.ai/account) with at least the
+following permissions:
+* Upload submissions.
+* View historical submission info.
+* View user info, (e.g. balance, withdrawal history)
 
 To run the complete pipeline:
 ```
-env PYTHONPATH='' luigi --local-scheduler --module workflow Workflow --usermail="YOUR_MAIL" --userpass="YOUR_PASS"
+env PYTHONPATH='.' luigi --local-scheduler --module workflow Workflow --secret="YOURSECRET" --public-id="YOURPUBLICID"
 ```
