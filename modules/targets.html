@@ -1,0 +1,161 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Targets &#8212; numerflow v1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Workflow" href="../workflow.html" />
+    <link rel="prev" title="Tasks" href="tasks.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="targets">
+<h1>Targets<a class="headerlink" href="#targets" title="Permalink to this headline">¶</a></h1>
+<p>Targets are products of Luigi tasks. These targets are checked for existance prior to
+running a tasks. This task is only run if any of the targets does not exist. A task also
+cannot exit with success when the target isn’t created after the task was run.</p>
+<dl class="class">
+<dt id="targets.numerai_submission.SubmissionTarget">
+<em class="property">class </em><code class="descclassname">targets.numerai_submission.</code><code class="descname">SubmissionTarget</code><span class="sig-paren">(</span><em>path</em>, <em>public_id</em>, <em>secret</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/targets/numerai_submission.html#SubmissionTarget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#targets.numerai_submission.SubmissionTarget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a submission target to “output” predictions from luigi tasks on
+the numer.ai servers.</p>
+<dl class="method">
+<dt id="targets.numerai_submission.SubmissionTarget.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>path</em>, <em>public_id</em>, <em>secret</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/targets/numerai_submission.html#SubmissionTarget.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#targets.numerai_submission.SubmissionTarget.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new SubmissionTarget.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">path (str):
+local path to the predictions csv file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Param:</th><td class="field-body">public_id (str):
+public_id as reported by the numer.ai website when creating API
+credentials</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">secret (str):
+secret as reported by the numer.ai website when creating API
+credentials</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="targets.numerai_submission.SubmissionTarget.exists">
+<code class="descname">exists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/targets/numerai_submission.html#SubmissionTarget.exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#targets.numerai_submission.SubmissionTarget.exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a submission for the file named <code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code> was uploaded.</p>
+<p>NB: the filename as reported by the server is appended by a random
+string (before the file extension), and we can just access the file
+that was submitted last. This might result in double uploads for the
+same file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="targets.numerai_submission.SubmissionTarget.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/targets/numerai_submission.html#SubmissionTarget.submit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#targets.numerai_submission.SubmissionTarget.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submits the predictions to the numer.ai servers and tries to report
+back the status.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">numerflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tasks.html">Tasks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/ChristianSch/numerflow">🚀 Github</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/ChristianSch/numerflow/releases">💾 Download Releases</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="tasks.html" title="previous chapter">Tasks</a></li>
+      <li>Next: <a href="../workflow.html" title="next chapter">Workflow</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Schulze.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/modules/targets.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
