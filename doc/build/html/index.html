@@ -1,0 +1,162 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Welcome to numerflow’s documentation! &#8212; numerflow v1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tasks" href="modules/tasks.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-numerflow">
+<span id="welcome-to-numerflow-s-documentation"></span><h1>Welcome to numerflow’s documentation!<a class="headerlink" href="#module-numerflow" title="Permalink to this headline">¶</a></h1>
+<p>This project provides fully automated data workflows for the numer.ai machine learning
+competition. The following tasks are currently implemented:</p>
+<ul class="simple">
+<li>fetch and extract the datasets</li>
+<li>train and predict</li>
+<li>automatic upload</li>
+</ul>
+<p>… as well as a <em>task</em> (<code class="xref py py-mod docutils literal notranslate"><span class="pre">workflow</span></code>) that implements a pipeline from fetching the training data,
+to training the model and finally submitting the predictions.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/targets.html">Targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
+</ul>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>Fetch the latest release from GitHub. Install the dependencies via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span>
+<span class="pre">requirements.txt</span></code>. You also need to create API credentials on the numer.ai website under
+the link <em>account</em>. The following permissions are needed:</p>
+<ul class="simple">
+<li>Upload submissions.</li>
+<li>View historical submission info.</li>
+<li>View user info, (e.g. balance, withdrawal history)</li>
+</ul>
+<p>You can run the example pipeline called <code class="docutils literal notranslate"><span class="pre">Workflow</span></code> directly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">env</span> <span class="n">PYTHONPATH</span><span class="o">=</span><span class="s1">&#39;.&#39;</span> <span class="n">luigi</span> <span class="o">--</span><span class="n">local</span><span class="o">-</span><span class="n">scheduler</span> <span class="o">--</span><span class="n">module</span> <span class="n">workflow</span> <span class="n">Workflow</span> <span class="o">--</span><span class="n">secret</span><span class="o">=</span><span class="s2">&quot;YOURSECRET&quot;</span> <span class="o">--</span><span class="n">public</span><span class="o">-</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;YOURPUBLICID&quot;</span>
+</pre></div>
+</div>
+<p>This should fetch the most recent data, train a <code class="docutils literal notranslate"><span class="pre">LogisticRegression</span></code> model and submit
+the predictions.
+When you want to roll your own model and preprocessing, start with
+<a class="reference internal" href="modules/tasks.html#tasks.numerai_train_and_predict.TrainAndPredict" title="tasks.numerai_train_and_predict.TrainAndPredict"><code class="xref py py-class docutils literal notranslate"><span class="pre">tasks.numerai_train_and_predict.TrainAndPredict</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">numerflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/targets.html">Targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/ChristianSch/numerflow">🚀 Github</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/ChristianSch/numerflow/releases">💾 Download Releases</a></li>
+    
+</ul>
+
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to numerflow’s documentation!</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="modules/tasks.html" title="next chapter">Tasks</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Schulze.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

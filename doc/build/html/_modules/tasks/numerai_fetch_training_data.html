@@ -1,0 +1,186 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>tasks.numerai_fetch_training_data &#8212; numerflow v1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for tasks.numerai_fetch_training_data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">numerapi.numerapi</span> <span class="k">import</span> <span class="n">NumerAPI</span>
+<span class="kn">import</span> <span class="nn">luigi</span>
+
+
+<div class="viewcode-block" id="FetchAndExtractData"><a class="viewcode-back" href="../../modules/tasks.html#tasks.numerai_fetch_training_data.FetchAndExtractData">[docs]</a><span class="k">class</span> <span class="nc">FetchAndExtractData</span><span class="p">(</span><span class="n">luigi</span><span class="o">.</span><span class="n">Task</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetches the most recent dataset and extracts the contents to the given</span>
+<span class="sd">    path if not yet done (default path is ``./data``).</span>
+
+<span class="sd">    :param: output_path:</span>
+<span class="sd">        (relative) path where the data should be written to. Defaults to</span>
+<span class="sd">        ``./data``. Default signature is</span>
+<span class="sd">        ``FetchAndExtractData(output_path=&#39;./data&#39;)``.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        data</span>
+<span class="sd">        ├── numerai_dataset_95</span>
+<span class="sd">        │   ├── example_model.py</span>
+<span class="sd">        │   ├── example_model.r</span>
+<span class="sd">        │   ├── example_predictions.csv</span>
+<span class="sd">        │   ├── numerai_tournament_data.csv</span>
+<span class="sd">        │   └── numerai_training_data.csv</span>
+<span class="sd">        └── numerai_dataset_95.zip</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">luigi</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;./data/&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FetchAndExtractData.output"><a class="viewcode-back" href="../../modules/tasks.html#tasks.numerai_fetch_training_data.FetchAndExtractData.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Manages the files to be written and determines their existence.</span>
+<span class="sd">        This is determined by checking all the listed files below. If any</span>
+<span class="sd">        of them does not exist, :py:func:`run` is evoked.</span>
+
+<span class="sd">        :returns:</span>
+<span class="sd">            A ``dict`` with the following keys:</span>
+
+<span class="sd">            * ``zipfile``: original file as downloaded</span>
+<span class="sd">            (``numerai_dataset_xxx.zip``)</span>
+<span class="sd">            * ``training_data.csv``: the training data</span>
+<span class="sd">            (``numerai_training_data.csv``)</span>
+<span class="sd">            * ``tournament_data.csv``: the tournament data</span>
+<span class="sd">            (``numerai_tournament_data.csv``)</span>
+<span class="sd">            * ``example_predictions.csv``: example predictions</span>
+<span class="sd">            (``example_predictions.csv``)</span>
+
+<span class="sd">            Note that ``example_model.py`` and ``example_model.r`` are not referenced,</span>
+<span class="sd">            as these are to no use for us.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apc</span> <span class="o">=</span> <span class="n">NumerAPI</span><span class="p">()</span>
+
+        <span class="n">current_round</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apc</span><span class="o">.</span><span class="n">get_current_round</span><span class="p">()</span>
+        <span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">&quot;numerai_dataset_</span><span class="si">{0}</span><span class="s2">.zip&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">current_round</span><span class="p">)</span>
+        <span class="n">dataset_dir</span> <span class="o">=</span> <span class="s2">&quot;numerai_dataset_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">current_round</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">apc</span><span class="o">.</span><span class="n">download_current_dataset</span><span class="p">(</span><span class="n">dest_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span>
+                                                 <span class="n">dest_filename</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span>
+                                                 <span class="n">unzip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># see numerapi download_current_dataset</span>
+        <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="n">dataset_dir</span><span class="p">)</span>
+
+        <span class="n">test_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="s1">&#39;numerai_training_data.csv&#39;</span><span class="p">)</span>
+        <span class="n">tournament_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span>
+                                            <span class="s1">&#39;numerai_tournament_data.csv&#39;</span><span class="p">)</span>
+        <span class="n">example_data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span>
+                                         <span class="s1">&#39;example_predictions.csv&#39;</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;zipfile&#39;</span><span class="p">:</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">)),</span>
+            <span class="s1">&#39;training_data.csv&#39;</span><span class="p">:</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="n">test_data_path</span><span class="p">),</span>
+            <span class="s1">&#39;tournament_data.csv&#39;</span><span class="p">:</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="n">tournament_data_path</span><span class="p">),</span>
+            <span class="s1">&#39;example_predictions.csv&#39;</span><span class="p">:</span> <span class="n">luigi</span><span class="o">.</span><span class="n">LocalTarget</span><span class="p">(</span><span class="n">example_data_path</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">out</span>
+
+<div class="viewcode-block" id="FetchAndExtractData.run"><a class="viewcode-back" href="../../modules/tasks.html#tasks.numerai_fetch_training_data.FetchAndExtractData.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div></div>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">numerflow</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/targets.html">Targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflow.html">Workflow</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/ChristianSch/numerflow">🚀 Github</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/ChristianSch/numerflow/releases">💾 Download Releases</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Christian Schulze.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
