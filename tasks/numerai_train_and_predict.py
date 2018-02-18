@@ -1,67 +1,85 @@
 # -*- coding: utf-8 -*-
 import os
 from datetime import datetime
-import urllib2
 
+from numerapi.numerapi import NumerAPI
 import luigi
 import pandas as pd
-from sklearn.cross_validation import train_test_split
-from sklearn.naive_bayes import BernoulliNB
+from sklearn import metrics, preprocessing, linear_model
 
-from numerai_fetch_training_data import FetchAndExtractData
+from .numerai_fetch_training_data import FetchAndExtractData
 
 
 class TrainAndPredict(luigi.Task):
     """
     Trains a naïve bayes classifier with an assumed bernoulli distribution of
     the features, then predicts the targets on the tournament data.
+    The default signature of this task is ``TrainAndPredict(output_path='./data')``.
+
+    :param: output_path (str):
+        path to the directory where the predictions shall be saved to, defaults to
+        ``./data``.
     """
-    dataset_path = luigi.Parameter(
-        default='https://datasets.numer.ai/57b4899/numerai_datasets.zip')
     output_path = luigi.Parameter(default='./data/')
 
     def requires(self):
-        return FetchAndExtractData(output_path=self.output_path,
-                                   dataset_path=self.dataset_path)
+        """
+        Dependencies to be fullfiled prior to execution. This task needs the
+        :py:class:`tasks.numerai_fetch_training_data.FetchAndExtractData` task that provides
+        the training/tournament data.
+        """
+        return FetchAndExtractData(output_path=self.output_path)
 
     def output(self):
-        req = urllib2.Request(self.dataset_path, headers={'User-Agent': 'Foo'})
-        res = urllib2.urlopen(req)
-
-        # TODO: not really failure tolerant with the formatting. is it some
-        # kind of standard? (which doesn't guarantee anything, of course)
-        lmd = datetime.strptime(dict(res.info())['last-modified'],
-                                '%a, %d %b %Y %H:%M:%S %Z')
-
-        fn = lmd.strftime('%d_%m_%Y_Bernoulli_NB__a_0_64__bin_0_23.csv')
-        return luigi.LocalTarget(os.path.join(self.output_path,
-                                              fn))
+        """
+        Saves outputs of this task--which is a csv file of the predictions made for the
+        given data.
+        """
+        self.apc = NumerAPI()
+        fn ='predictions_{0}_LogisticRegression.csv'.format(self.apc.get_current_round())
+        return luigi.LocalTarget(os.path.join(self.output_path, fn))
 
     def run(self):
+        """
+        Trains a model and makes predictions given the data. These are then saved
+        to a csv file.
+        """
         data = self.input()
         out = self.output()
 
-        test_df = pd.read_csv(data['training_data.csv'].path)
-        pred_df = pd.read_csv(data['tournament_data.csv'].path)
+        training_data = pd.read_csv(data['training_data.csv'].path, header=0)
+        prediction_data = pd.read_csv(data['tournament_data.csv'].path, header=0)
 
-        training_indices, testing_indices = train_test_split(
-            test_df.index,
-            stratify=test_df['target'].values,
-            train_size=0.75,
-            test_size=0.25)
+        # Transform the loaded CSV data into numpy arrays
+        features = [f for f in list(training_data) if "feature" in f]
+        X = training_data[features]
+        Y = training_data["target"]
+        x_prediction = prediction_data[features]
+        ids = prediction_data["id"]
 
-        result1 = test_df.copy()
+        # This is your model that will learn to predict
+        model = linear_model.LogisticRegression(n_jobs=-1)
 
-        # Perform classification with a BernoulliNB classifier
-        bnb1 = BernoulliNB(alpha=0.64, binarize=0.23)
-        bnb1.fit(result1.loc[training_indices].drop('target', axis=1).values,
-                 result1.loc[training_indices, 'target'].values)
+        # Your model is trained on the training_data
+        model.fit(X, Y)
 
-        # Perform prediction
-        val = pred_df.drop('t_id', axis=1)
-        nb = bnb1.predict_proba(val)
-        pred_df['probability'] = nb[:, 1]
+        # Your trained model is now used to make predictions on the
+        # numerai_tournament_data
+        # The model returns two columns: [probability of 0, probability of 1]
+        # We are just interested in the probability that the target is 1.
+        y_prediction = model.predict_proba(x_prediction)
+        results = y_prediction[:, 1]
+        results_df = pd.DataFrame(data={'probability': results})
+        joined = pd.DataFrame(ids).join(results_df)
 
-        pred_df.to_csv(out.path,
-                       columns=('t_id', 'probability'),
-                       index=None)
+        print("Writing predictions to predictions.csv")
+        # Save the predictions out to a CSV file
+        joined.to_csv("predictions.csv", index=False)
+        y_prediction = model.predict_proba(x_prediction)
+        results = y_prediction[:, 1]
+        results_df = pd.DataFrame(data={'probability': results})
+        joined = pd.DataFrame(ids).join(results_df)
+
+        print("Writing predictions to predictions.csv")
+        # Save the predictions out to a CSV file
+        joined.to_csv(out.path, index=False)

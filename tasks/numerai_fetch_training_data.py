@@ -1,83 +1,82 @@
 import os
 import sys
-import urllib2
-from datetime import datetime
-import zipfile
+from numerapi.numerapi import NumerAPI
 import luigi
-
-sys.path.append(os.path.abspath(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-))
-
-from controllers.ApiController import ApiController
 
 
 class FetchAndExtractData(luigi.Task):
     """
-    Fetches the most recent datasets and extracts the contents. The files
-    contained in the zipfile are moved to `output_path` and the files are
-    prepended by a timestamp to reflect the date of the last modified header.
+    Fetches the most recent dataset and extracts the contents to the given
+    path if not yet done (default path is ``./data``).
+
+    :param: output_path:
+        (relative) path where the data should be written to. Defaults to
+        ``./data``. Default signature is
+        ``FetchAndExtractData(output_path='./data')``.
+
+    ::
+
+        data
+        ├── numerai_dataset_95
+        │   ├── example_model.py
+        │   ├── example_model.r
+        │   ├── example_predictions.csv
+        │   ├── numerai_tournament_data.csv
+        │   └── numerai_training_data.csv
+        └── numerai_dataset_95.zip
+
     """
-    dataset_path = luigi.Parameter(default=None)
     output_path = luigi.Parameter(default='./data/')
 
     def output(self):
-        # fetch most current dataset if no specific URI for the dataset is
-        # given.
-        if not self.dataset_path:
-            apc = ApiController()
-            self.dataset_path = apc.fetch_current_dataset_uri()
+        """
+        Manages the files to be written and determines their existence.
+        This is determined by checking all the listed files below. If any
+        of them does not exist, :py:func:`run` is evoked.
 
-        # custom headers are needed, otherwise access is going to be forbidden
-        # by cloudflare.
-        req = urllib2.Request(self.dataset_path, headers={'User-Agent': "Foo"})
-        self.res = urllib2.urlopen(req)
+        :returns:
+            A ``dict`` with the following keys:
 
-        # TODO: not really failure tolerant with the formatting. is it some
-        # kind of standard? (which doesn't guarantee anything, of course)
-        lmd = datetime.strptime(dict(self.res.info())['last-modified'],
-                                '%a, %d %b %Y %H:%M:%S %Z')
+            * ``zipfile``: original file as downloaded
+            (``numerai_dataset_xxx.zip``)
+            * ``training_data.csv``: the training data
+            (``numerai_training_data.csv``)
+            * ``tournament_data.csv``: the tournament data
+            (``numerai_tournament_data.csv``)
+            * ``example_predictions.csv``: example predictions
+            (``example_predictions.csv``)
 
-        prefix = lmd.strftime('%d_%m_%Y')
+            Note that ``example_model.py`` and ``example_model.r`` are not referenced,
+            as these are to no use for us.
+        """
+        self.apc = NumerAPI()
 
-        dataset_path = os.path.join(self.output_path,
-                                    '{0}_dataset.zip'.format(prefix))
-        test_data_path = os.path.join(self.output_path,
-                                      '{0}_training_data.csv'.format(prefix))
-        tournament_data_path = os.path.join(self.output_path,
-                                            '{0}_tournament_data.csv'
-                                            .format(prefix))
-        example_data_path = os.path.join(self.output_path,
-                                         '{0}_example_predictions.csv'
-                                         .format(prefix))
+        current_round = self.apc.get_current_round()
+        dataset_name = "numerai_dataset_{0}.zip".format(current_round)
+        dataset_dir = "numerai_dataset_{0}".format(current_round)
 
-        return {
-            'zipfile': luigi.LocalTarget(dataset_path),
+        assert self.apc.download_current_dataset(dest_path=self.output_path,
+                                                 dest_filename=dataset_name,
+                                                 unzip=True)
+
+        # see numerapi download_current_dataset
+        dataset_path = os.path.join(self.output_path, dataset_dir)
+
+        test_data_path = os.path.join(dataset_path, 'numerai_training_data.csv')
+        tournament_data_path = os.path.join(dataset_path,
+                                            'numerai_tournament_data.csv')
+        example_data_path = os.path.join(dataset_path,
+                                         'example_predictions.csv')
+
+        out = {
+            'zipfile': luigi.LocalTarget(os.path.join(self.output_path, dataset_name)),
             'training_data.csv': luigi.LocalTarget(test_data_path),
             'tournament_data.csv': luigi.LocalTarget(tournament_data_path),
             'example_predictions.csv': luigi.LocalTarget(example_data_path)
         }
+        print(out)
+        return out
 
     def run(self):
         out = self.output()
 
-        with out['zipfile'].open('wb') as fp:
-            fp.write(self.res.read())
-
-        with zipfile.ZipFile(out['zipfile'].path) as zf:
-            for member in zf.infolist():
-                # note that we are not vulnearble to the directory traversal
-                # vulnerability in zipfile.extract because we only use the
-                # filename of the member and ignore the path (the 0th element
-                # of the split below) and use our own (given as output_path)
-                filename = os.path.split(member.filename)[1]
-
-                if 'numerai_' in filename:
-                    target_name = filename.replace('numerai_', '')
-                else:
-                    target_name = filename
-
-                target = out[target_name]
-                zf.extract(member, self.output_path)
-                os.rename(os.path.join(self.output_path, member.filename),
-                          target.path)
